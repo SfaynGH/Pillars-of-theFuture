@@ -16,7 +16,7 @@ All system operations are powered by solar panels, aligning with eco-friendly fa
 
 ## 🖼️ Prototype Image
 <div align="center">
-<img src=prototype.jpg"/>
+<img src="prototype.jpg"/>
 
   <br/>
   
@@ -30,7 +30,7 @@ The system architecture includes:
 - **Sensors** for temperature, humidity, soil moisture, and gas detection.
 - **motor** simulating the smart valve
 <div align="center">
-<img src=conception.jpg"/>
+<img src="conception.jpg"/>
 
   <br/>
   
@@ -39,7 +39,7 @@ The system architecture includes:
 
 ## 📲 User Interface Screenshots
 <div align="center">
-<img src=UI.png"/>
+<img src="UI.png"/>
 
   <br/>
   
@@ -50,7 +50,7 @@ The system architecture includes:
 ## 🌐 General Architecture
 
 <div align="center">
-<img src=architecture.png"/>
+<img src="architecture.png"/>
 
   <br/>
   
