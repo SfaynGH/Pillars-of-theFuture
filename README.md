@@ -15,7 +15,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/SfaynGH/Pillars-of-theFuture">
-    <img src="assets/images/logo.png" alt="Logo" width="256" height="256">
+    <img src="Gorah Farming Mobile App/assets/images/logo.png" alt="Logo" width="256" height="256">
   </a>
     <h1 width="35px"> Gorah Farming 🌾
     </h1>
