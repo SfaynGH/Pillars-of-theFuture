@@ -16,11 +16,7 @@ class Message {
   final bool isUser;
   final Widget? customWidget;
 
-  Message({
-    required this.text,
-    required this.isUser,
-    this.customWidget,
-  });
+  Message({required this.text, required this.isUser, this.customWidget});
 }
 
 class IoTChatScreen extends StatefulWidget {
@@ -43,11 +39,7 @@ class _IoTChatScreenState extends State<IoTChatScreen> {
   double currentTemp = 25.0;
   double currentHumidity = 65.0;
 
-  // Initialize Gemini (you'll need to add your API key)
-  final model = GenerativeModel(
-    model: 'gemini-1.5-flash',
-    apiKey: 'AIzaSyD7Ub-fmdXtKoLH6rFBThNDKEA3NKiMAbA',
-  );
+  final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: 'API_KEY');
 
   @override
   void initState() {
@@ -76,19 +68,14 @@ class _IoTChatScreenState extends State<IoTChatScreen> {
     final theme = Theme.of(context);
     return Theme(
       data: Theme.of(context).copyWith(
-        colorScheme: theme.colorScheme.copyWith(
-          secondary: theme.primaryColor,
-        ),
+        colorScheme: theme.colorScheme.copyWith(secondary: theme.primaryColor),
       ),
       child: Scaffold(
         appBar: AppBar(
           title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.device_hub,
-                color: theme.colorScheme.onPrimary,
-              ),
+              Icon(Icons.device_hub, color: theme.colorScheme.onPrimary),
               SizedBox(width: 8),
               Text(
                 'Gorah Control Chat',
@@ -143,17 +130,19 @@ class _IoTChatScreenState extends State<IoTChatScreen> {
                   itemBuilder: (context, index) {
                     final message = _messages[index];
                     return Column(
-                      crossAxisAlignment: message.isUser
-                          ? CrossAxisAlignment.end
-                          : CrossAxisAlignment.start,
+                      crossAxisAlignment:
+                          message.isUser
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
                       children: [
                         Container(
                           margin: EdgeInsets.only(bottom: 8),
                           padding: EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: message.isUser
-                                ? theme.primaryColor
-                                : theme.colorScheme.surface,
+                            color:
+                                message.isUser
+                                    ? theme.primaryColor
+                                    : theme.colorScheme.surface,
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
@@ -169,9 +158,10 @@ class _IoTChatScreenState extends State<IoTChatScreen> {
                               Text(
                                 message.text,
                                 style: TextStyle(
-                                  color: message.isUser
-                                      ? theme.colorScheme.onPrimary
-                                      : theme.colorScheme.onSurface,
+                                  color:
+                                      message.isUser
+                                          ? theme.colorScheme.onPrimary
+                                          : theme.colorScheme.onSurface,
                                 ),
                               ),
                               if (message.customWidget != null) ...[
@@ -210,14 +200,19 @@ class _IoTChatScreenState extends State<IoTChatScreen> {
                         controller: _controller,
                         decoration: InputDecoration(
                           hintText: 'Type your message...',
-                          hintStyle: TextStyle(color: theme.colorScheme.onSurface),
+                          hintStyle: TextStyle(
+                            color: theme.colorScheme.onSurface,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(24),
                             borderSide: BorderSide(color: theme.primaryColor),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(24),
-                            borderSide: BorderSide(color: theme.primaryColor, width: 2),
+                            borderSide: BorderSide(
+                              color: theme.primaryColor,
+                              width: 2,
+                            ),
                           ),
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
@@ -245,11 +240,9 @@ class _IoTChatScreenState extends State<IoTChatScreen> {
 
   void _addMessage(String text, bool isUser, {Widget? customWidget}) {
     setState(() {
-      _messages.add(Message(
-        text: text,
-        isUser: isUser,
-        customWidget: customWidget,
-      ));
+      _messages.add(
+        Message(text: text, isUser: isUser, customWidget: customWidget),
+      );
     });
     _scrollToBottom();
   }
@@ -266,7 +259,7 @@ class _IoTChatScreenState extends State<IoTChatScreen> {
     });
   }
 
-  Future <void> _predictWaterUsage(String text) async {
+  Future<void> _predictWaterUsage(String text) async {
     final response = await http.post(
       Uri.parse('$_rpiIP/predict'),
       headers: <String, String>{
@@ -289,13 +282,15 @@ class _IoTChatScreenState extends State<IoTChatScreen> {
       final waterDistribution = data['Adjusted Water Distribution (mm/day)'];
       final waterNeeded = data['Water Needed for Next 7 Days (mm)'];
       final soilMoistureIndex = data['SoilMoistureIndex'];
-      _addMessage(text,
+      _addMessage(
+        text,
         false,
         customWidget: WaterDistributionWidget(
           adjustedWaterDistribution: waterDistribution.cast<double>(),
           soilMoistureIndex: soilMoistureIndex,
-          waterNeededNext7Days: waterNeeded)
-        );
+          waterNeededNext7Days: waterNeeded,
+        ),
+      );
     } else {
       _addMessage('Failed to predict water usage', false);
     }
@@ -324,7 +319,13 @@ class _IoTChatScreenState extends State<IoTChatScreen> {
     return structs.WeatherLocation.fromJson(json.decode(response.body));
   }
 
-  Widget _buildSensorDataWidget(double sensorTemp, double sensorHumidity, String temperature, String windSpeed, String conditions) {
+  Widget _buildSensorDataWidget(
+    double sensorTemp,
+    double sensorHumidity,
+    String temperature,
+    String windSpeed,
+    String conditions,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -361,20 +362,37 @@ class _IoTChatScreenState extends State<IoTChatScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.home, size: 16, color: Colors.blue.shade700),
+                          Icon(
+                            Icons.home,
+                            size: 16,
+                            color: Colors.blue.shade700,
+                          ),
                           const SizedBox(width: 4),
-                          Text('Soil Sensor',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue.shade700)),
+                          Text(
+                            'Soil Sensor',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue.shade700,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Text('Temp: ${sensorTemp.toStringAsFixed(1)}°C',
-                          style: TextStyle(fontSize: 14, color: Colors.red.shade700)),
-                      Text('Humidity: ${sensorHumidity.toStringAsFixed(1)}%',
-                          style: TextStyle(fontSize: 14, color: Colors.blue.shade700)),
+                      Text(
+                        'Temp: ${sensorTemp.toStringAsFixed(1)}°C',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.red.shade700,
+                        ),
+                      ),
+                      Text(
+                        'Humidity: ${sensorHumidity.toStringAsFixed(1)}%',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.blue.shade700,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -393,21 +411,37 @@ class _IoTChatScreenState extends State<IoTChatScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(getWeatherIcon(conditions),
-                              size: 16, color: Colors.orange.shade700),
+                          Icon(
+                            getWeatherIcon(conditions),
+                            size: 16,
+                            color: Colors.orange.shade700,
+                          ),
                           const SizedBox(width: 4),
-                          Text('Outdoor',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.orange.shade700)),
+                          Text(
+                            'Outdoor',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange.shade700,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Text('Temp: $temperature°C',
-                          style: TextStyle(fontSize: 14, color: Colors.red.shade700)),
-                      Text('Wind: $windSpeed km/h',
-                          style: TextStyle(fontSize: 14, color: Colors.orange.shade700)),
+                      Text(
+                        'Temp: $temperature°C',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.red.shade700,
+                        ),
+                      ),
+                      Text(
+                        'Wind: $windSpeed km/h',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.orange.shade700,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -425,8 +459,11 @@ class _IoTChatScreenState extends State<IoTChatScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(getWeatherIcon(conditions),
-                    size: 14, color: Colors.grey.shade700),
+                Icon(
+                  getWeatherIcon(conditions),
+                  size: 14,
+                  color: Colors.grey.shade700,
+                ),
                 const SizedBox(width: 4),
                 Text(
                   conditions,
@@ -508,38 +545,53 @@ class _IoTChatScreenState extends State<IoTChatScreen> {
       final extractedJson = extractJson(response.text!);
       final jsonResponse = json.decode(extractedJson);
 
-      if(jsonResponse['problem'] != null) {
-        _addMessage("Sorry, there was an error processing your request., ${jsonResponse['problem']}", false);
+      if (jsonResponse['problem'] != null) {
+        _addMessage(
+          "Sorry, there was an error processing your request., ${jsonResponse['problem']}",
+          false,
+        );
         return;
       }
 
-      if(jsonResponse['intent'] == 'sensors_data') {
+      if (jsonResponse['intent'] == 'sensors_data') {
         final val = await getSensorData();
         final weather = await _getWeather();
-        final String temperature = weather.current_weather.temperature.toString();
+        final String temperature =
+            weather.current_weather.temperature.toString();
         final String windSpeed = weather.current_weather.windspeed.toString();
-        final conditions = getWeatherDescription(weather.current_weather.weathercode);
+        final conditions = getWeatherDescription(
+          weather.current_weather.weathercode,
+        );
 
         _addMessage(
           "Here are the current sensor readings:",
           false,
-          customWidget: _buildSensorDataWidget(val["temperature"], val["humidity"],temperature,windSpeed,conditions),
+          customWidget: _buildSensorDataWidget(
+            val["temperature"],
+            val["humidity"],
+            temperature,
+            windSpeed,
+            conditions,
+          ),
         );
-      } else if(jsonResponse['intent'] == 'water_pump') {
-        if(jsonResponse['delay'] != null) {
+      } else if (jsonResponse['intent'] == 'water_pump') {
+        if (jsonResponse['delay'] != null) {
           _addMessage(jsonResponse["text"], false);
-          _controlPump(jsonResponse['action'] ? "on" : "off", jsonResponse['delay']);
+          _controlPump(
+            jsonResponse['action'] ? "on" : "off",
+            jsonResponse['delay'],
+          );
           // Add delay logic here
         } else {
           _addMessage(jsonResponse["text"], false);
           _controlPump(jsonResponse['action'] ? "on" : "off", 0);
           // Add immediate activation logic here
         }
-      } else if(jsonResponse['intent'] == 'general_query') {
+      } else if (jsonResponse['intent'] == 'general_query') {
         _addMessage(jsonResponse['text'], false);
       } else if (jsonResponse['intent'] == 'water_usage_prediction') {
         _predictWaterUsage(jsonResponse['text']);
-      }else {
+      } else {
         _addMessage("Sorry, I couldn't understand your request.", false);
       }
     } catch (e) {
@@ -560,7 +612,7 @@ const js = {
       0.8102522812667741,
       0.22320709105560033,
       0.0,
-      0.30600890207715137
+      0.30600890207715137,
     ],
     [
       0.9044117647058822,
@@ -570,7 +622,7 @@ const js = {
       0.8266237251744498,
       0.0749395648670427,
       0.0,
-      0.2805390702274976
+      0.2805390702274976,
     ],
     [
       0.8958333333333334,
@@ -580,7 +632,7 @@ const js = {
       0.8639291465378423,
       0.06526994359387589,
       0.0,
-      0.27200791295746785
+      0.27200791295746785,
     ],
     [
       0.5612745098039216,
@@ -590,7 +642,7 @@ const js = {
       0.8483628556092325,
       0.23690572119258663,
       0.0,
-      0.20017309594460928
+      0.20017309594460928,
     ],
     [
       0.8970588235294118,
@@ -600,7 +652,7 @@ const js = {
       0.8808373590982288,
       0.31023368251410155,
       0.0,
-      0.2403560830860534
+      0.2403560830860534,
     ],
     [
       0.8872549019607843,
@@ -610,7 +662,7 @@ const js = {
       0.8617820719269995,
       0.19500402900886382,
       0.0022240756185710315,
-      0.29438674579624136
+      0.29438674579624136,
     ],
     [
       0.8946078431372548,
@@ -620,11 +672,10 @@ const js = {
       0.808641975308642,
       0.2707493956486704,
       0.0,
-      0.3067507418397626
-    ]
-  ]
+      0.3067507418397626,
+    ],
+  ],
 };
-
 
 String getWeatherDescription(int weatherCode) {
   Map<int, String> weatherDescriptions = {
