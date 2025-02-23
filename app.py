@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import numpy as np
+import requests
 import tensorflow as tf
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import load_model
@@ -200,10 +201,11 @@ FIELD_CAPACITY = 0.35  # Maximum soil moisture (m³/m³)
 ROOT_DEPTH = 0.6  # Root zone depth (meters)
 SOIL_TYPE_FACTOR = 1000  # Converts m³/m³ to mm
 DAYS_NUM = 7  # Number of days to predict
-
+LATITUDE = 52.52  # Replace with your location
+LONGITUDE = 13.41  # Replace with your location
 
 # Charger le modèle entraîné
-model = load_model('fine_tuned_model.h5', custom_objects={'mse': MeanSquaredError()})
+model = load_model('LSTM-Model/fine_tuned_model.h5', custom_objects={'mse': MeanSquaredError()})
 
 # Normaliser les données (min-max scaling)
 scaler = MinMaxScaler()
@@ -214,6 +216,18 @@ features = [
     "ALLSKY_SFC_SW_DWN", "ALLSKY_KT", "ALLSKY_SFC_LW_DWN",
     "T2MDEW", "TS", "WS10M", "PRECTOTCORR", "RH2M"
 ]
+
+def get_weather_forecast():
+    """Fetches weather forecast for the next 7 days using Open-Meteo API"""
+    try:
+        url = f"https://api.open-meteo.com/v1/forecast?latitude={LATITUDE}&longitude={LONGITUDE}&daily=precipitation_sum&timezone=auto"
+        response = requests.get(url)
+        weather_data = response.json()
+        return weather_data["daily"]["precipitation_sum"]  # List of 7 values (rainfall in mm)
+    except Exception as e:
+        print("Error fetching weather data:", e)
+        return [0] * DAYS_NUM  # Default to 0mm rain if API call fails
+
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -245,8 +259,23 @@ def predict():
         water_needed = (FIELD_CAPACITY - predicted_value.flatten()) * ROOT_DEPTH * SOIL_TYPE_FACTOR * DAYS_NUM
         water_needed = np.maximum(water_needed, 0)
         
-        return jsonify({"SoilMoistureIndex": float(predicted_value),
-                        "Water Needed for Next 7 Days(mm):": water_needed[0]})
+        # Get weather forecast
+        rain_forecast = get_weather_forecast() 
+
+        # Adjust water_needed based on rainfall
+        adjusted_water_distribution = []
+        for i in range(DAYS_NUM):
+            if rain_forecast[i] > 5:  # If rain > 5mm, reduce irrigation by 50%
+                adjusted_water = water_needed[0] * 0.5 / DAYS_NUM
+            else:
+                adjusted_water = water_needed[0] / DAYS_NUM
+            adjusted_water_distribution.append(adjusted_water)
+
+        return jsonify({
+            "SoilMoistureIndex": float(predicted_value),
+            "Water Needed for Next 7 Days (mm)": water_needed[0],
+            "Adjusted Water Distribution (mm/day)": adjusted_water_distribution
+        })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -290,6 +319,6 @@ def analyze_plant():
 if __name__ == "__main__":
     print("Loading components...")
     leaf_extractor = LeafExtractor()
-    disease_classifier = DiseaseClassifier('disease_detection.h5')
+    disease_classifier = DiseaseClassifier('disease_detection_model/disease_detection.h5')
     os.makedirs('extracted_leaves', exist_ok=True)
     app.run(debug=True, port=5000)
